@@ -1,0 +1,6 @@
+﻿  Astar.cpp
+c:\hlocal\astar_algorithm\astar_algorithm\astar.cpp(51): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\hlocal\astar_algorithm\astar_algorithm\astar.cpp(97): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\hlocal\astar_algorithm\astar_algorithm\astar.cpp(84): warning C4101: 'M': unreferenced local variable
+c:\hlocal\astar_algorithm\astar_algorithm\astar.cpp(84): warning C4101: 'N': unreferenced local variable
+  Astar_algorithm.vcxproj -> C:\hlocal\Astar_algorithm\Debug\Astar_algorithm.exe
