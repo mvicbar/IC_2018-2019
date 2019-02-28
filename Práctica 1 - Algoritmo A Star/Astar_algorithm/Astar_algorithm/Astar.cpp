@@ -5,8 +5,6 @@
 #include <utility>
 #include <math.h>
 
-#include "IndexPQ.h"
-
 using namespace std;
 
 class Astar {
@@ -27,8 +25,9 @@ private:
 	int F, C;
 	queue<Nodo> cerrada;	//Lista CERRADA donde se guardan los nodos ya visitados y desplegados
 	priority_queue<Nodo> abierta;	//Lista ABIERTA donde se guardan en orden de menor coste los nodos que aún quedan por visitar y desplegar
+	vector<string> mapa;
 
-	Nodo nodo_ini, meta;	//Nodos inicio y meta
+	Nodo nodo_ini, nodo_meta;	//Nodo inicio
 	
 	//	Vector para generar las casillas adyacentes
 	const vector<pair<int, int>> dirs = { { 0,1 },{ 0,-1 },{ 1,0 },{ -1,0 },{ 1,1 },{ -1,-1 },{ 1,-1 },{ -1,1 } };
@@ -40,10 +39,11 @@ private:
 
 public:
 
-	Astar(vector<string> const& mapa, pair<int, int> const& inicio, pair<int, int> const& meta) : F(mapa.size()), C(mapa[0].size()),
-		nodo_ini(inicio.first, inicio.second, sqrt(pow((inicio.first - meta.first), 2) + pow((inicio.second - meta.second), 2))) {
+	Astar(vector<string> const& mapa, pair<int, int> const& inicio, pair<int, int> const& meta) : F(mapa.size()), C(mapa[0].size()), mapa(mapa),
+		nodo_ini(inicio.first, inicio.second, sqrt(pow((inicio.first - meta.first), 2) + pow((inicio.second - meta.second), 2))),
+		nodo_meta(meta.first, meta.second, 0) {
 
-		vector<int> padres(F*C, -1);	//Guarda en cada posición el padre del nodo cuyo id es el índice del vector
+		vector<Nodo> padres(F*C, { -1, -1, -1 });	//Guarda en cada posición el padre del nodo cuyo id es el índice del vector
 
 		nodo_ini.id = C * nodo_ini.fila + nodo_ini.columna;
 
@@ -55,76 +55,91 @@ public:
 			Nodo n = abierta.top(); abierta.pop();	
 			cerrada.push(n);
 
-			meta_seleccionada = n.fila == meta.first && n.columna == meta.second;
+			meta_seleccionada = n.fila == nodo_meta.fila && n.columna == nodo_meta.columna;
 
-			for (auto d : dirs) {
-				int nf = n.fila + d.first;
-				int nc = n.columna + d.second;
+			if (!meta_seleccionada) {
 
-				if (correct(nf, nc) && mapa[nf][nc] != 'X' && (nf != n.fila || nc != n.columna) && (nf*C + nc) != padres[n.id] && padres[nf*C + nc] == -1) {
+				for (auto d : dirs) {
+					int nf = n.fila + d.first;
+					int nc = n.columna + d.second;
 
-					double coste_nodo = sqrt(pow((nf - meta.first), 2) + pow((nc - meta.second), 2));	// Distancia relativa a la meta
+					if (correct(nf, nc) && mapa[nf][nc] != 'X' && (nf*C + nc) != padres[n.id].id && padres[nf*C + nc].fila == -1) {
 
-					if (d.first == 0 || d.second == 0)
-						coste_nodo += 1;
-					else coste_nodo += sqrt(2);
+						double coste_nodo = sqrt(pow((nf - nodo_meta.fila), 2) + pow((nc - nodo_meta.columna), 2));	// Distancia relativa a la meta
 
-					Nodo nuevo = { nf, nc, coste_nodo };
-					nuevo.id = C * nuevo.fila + nuevo.columna;
+						//	Coste del desplazamiento de la casilla n a la nueva casilla
+						if (d.first == 0 || d.second == 0)
+							coste_nodo += 1;
+						else coste_nodo += sqrt(2);
 
-					if (padres[nuevo.id] == -1) {
-						padres[nuevo.id] = n.id;	//Actualización del padre
+						Nodo nuevo = { nf, nc, coste_nodo };
+						nuevo.id = C * nuevo.fila + nuevo.columna;
+
+						padres[nuevo.id] = n;	//Actualización del padre
 						abierta.push(nuevo);
-					}
 
+					}
 				}
 			}
 		}
+
+		dibujarMapa();
 
 		if (meta_seleccionada) {
-			int n = cerrada.back().id;
 			vector<pair<int, int>> camino;
-			camino.push_back({ -1, n });
+			Nodo nodo = cerrada.back();
+			int id = nodo.id;
 
-			while (padres[n] != -1) {
-				camino.push_back({ -1, padres[n] });
-				n = padres[n];
+			camino.push_back({ nodo.fila + 1, nodo.columna + 1 });
+
+			while (padres[id].fila != -1) {
+				nodo = padres[id];
+				camino.push_back({ nodo.fila + 1, nodo.columna + 1 });
+				id = nodo.id;
 			}
 
-			cout << "Mapa: \n";
-			cout << "   ";
-			for (int i = 0; i < F; i++)
-				cout << i + 1 << "  ";
-
-			cout << "\n";
-
-			for (int i = 0; i < F; i++) {
-				cout << i + 1 << " | ";
-				for (int j = 0; j < C; ++j) {
-					if (mapa[i][j] == 'X')
-						cout << "X ";
-					else if (meta.first == i && meta.second == j)
-						cout << "M ";
-					else if (nodo_ini.fila == i && nodo_ini.columna == j)
-						cout << "I ";
-					else cout << ". ";
-				}
-				cout << "|\n";
-			}
-
-			std::cout << "Camino óptimo: \n";
-
-			for (int i = camino.size() - 1; i >= 0; --i) {
-				std::cout << "(" << camino[i].first << ", " << camino[i].second << ")";
-				
-				if (i != 0)
-					cout << " -> ";
-			}
-
-			cout << "\n";
+			escribirCaminoOptimo(camino);
 		}
 		else
-			std::cout << "No se ha encontrado el camino óptimo\n";
+			std::cout << "No se ha podido encontrar el camino optimo\n";
+	}
+
+	void dibujarMapa() {
+		cout << "\nMapa: \n";
+		cout << "   ";
+		for (int i = 0; i < F; i++)
+			cout << i + 1 << "  ";
+
+		cout << "\n";
+
+		for (int i = 0; i < F; i++) {
+			cout << i + 1 << " | ";
+			for (int j = 0; j < C; ++j) {
+				if (mapa[i][j] == 'X')
+					cout << "X ";
+				else if (nodo_meta.fila == i && nodo_meta.columna == j)
+					cout << "M ";
+				else if (nodo_ini.fila == i && nodo_ini.columna == j)
+					cout << "I ";
+				else cout << ". ";
+			}
+			cout << "|\n";
+		}
+
+		cout << "\n";
+	}
+
+	void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
+		std::cout << "Camino optimo: \n";
+
+		for (int i = camino.size() - 1; i >= 0; --i) {
+			std::cout << "(" << camino[i].first << ", " << camino[i].second << ")";
+
+			if (i != 0)
+				cout << " -> ";
+		}
+
+		cout << "\n\n";
 	}
 
 	friend bool operator<(Astar::Nodo const n1, Astar::Nodo const n2);
@@ -150,33 +165,83 @@ vector<string> construirTablero(int F, int C, vector<pair<int, int>>& prohibidas
 	return tablero;
 }
 
+
+int  menu() {
+	int op;
+
+	cout << "===   ALGORITMO A*   ===\n";
+	cout << "\tFuncionalidades posibles:\n";
+	cout << "\t\t1.- Calcular el camino optimo\n";
+	cout << "\t\t2.- way points\n";
+	cout << "\t\t0.- Salir\n";
+
+	cout << "Seleccione una opcion: ";
+	cin >> op;
+
+	return op;
+}
+
+
 int main() {
+	int option = -1;
+	vector<pair<int, int>> prohibidas;	//Guarda las casillas prohibidas
+	vector<string> mapa;	//Guarda el mapa con la casilla de inicio, la casilla de meta, y las casillas prohibidas
+	pair<int, int> inicio, meta;	//Pares que representan la <fila, columna> de inicio y la meta
 	int F, C;
-	pair<int, int> inicio, meta;
-	int f, c;
-	vector<pair<int, int>> prohibidas;
+	int f = -1, c = -1;
 
-	std::cout << "Introduce las dimensiones de la matriz (F x C): ";
-	std::cin >> F >> C;
-
-	cout << "Introduce la fila y la columna de inicio: ";
-	cin >> f >> c;
-	inicio = { f - 1, c - 1 };
-
-	cout << "Introduce la fila y la columna de meta: ";
-	cin >> f >> c;
-	meta = { f - 1, c - 1 };
-
-	cout << "Introduce las casillas prohibidas (0 0 para parar): ";
 	do {
-		cin >> f >> c;
-		prohibidas.push_back({ f - 1, c - 1 });
-	} while (f != 0);
+		option = menu();
 
-	prohibidas.pop_back();
-	vector<string> mapa = construirTablero(F, C, prohibidas);
+		switch (option) {
+		case 1:
+			std::cout << "\nIntroduce las dimensiones de la matriz <F C>: ";
+			std::cin >> F >> C;
 
-	Astar(mapa, inicio, meta);
+			while (f > F || f < 0 || c > C || c < 0) {
+				cout << "Introduce la fila y la columna de inicio <fila columna>: ";
+				cin >> f >> c;
+			}
+			inicio = { f - 1, c - 1 };
+
+			f = -1, c = -1;
+
+			while (f > F || f <= 0 || c > C || c <= 0) {
+				cout << "Introduce la fila y la columna de meta <fila columna>: ";
+				cin >> f >> c;
+			}
+			meta = { f - 1, c - 1 };
+
+
+			cout << "Introduce las casillas prohibidas (0 0 para parar): ";
+			do {
+				cin >> f >> c;
+
+				while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > F || c < 0 || c > C) {
+					if(f < 0 || f > F || c < 0 || c > C)
+						cout << "Casilla erronea, introduzca una valida: ";
+					else
+						cout << "Las casillas prohibidas no pueden coincidir con la meta o el inicio: ";
+
+					cin >> f >> c;
+				}
+
+				prohibidas.push_back({ f - 1, c - 1 });
+			} while (f != 0);
+
+			prohibidas.pop_back();
+			mapa = construirTablero(F, C, prohibidas);
+
+			Astar(mapa, inicio, meta);
+			break;
+		case 2:
+			cout << "Esta opcion aun no se encuentra disponible\n";
+			break;
+		case 0:
+			break;
+		}
+
+	} while (option != 0);
 
 	system("PAUSE");
 
