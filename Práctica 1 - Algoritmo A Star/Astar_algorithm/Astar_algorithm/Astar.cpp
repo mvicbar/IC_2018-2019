@@ -27,6 +27,8 @@ private:
 	priority_queue<Nodo> abierta;	//Lista ABIERTA donde se guardan en orden de menor coste los nodos que aún quedan por visitar y desplegar
 	vector<string> mapa;
 
+	vector<pair<int, int>> camino;	//Vector que contendrá las celdas del camino óptimo
+
 	Nodo nodo_ini, nodo_meta;	//Nodo inicio
 	
 	//	Vector para generar las casillas adyacentes
@@ -52,7 +54,7 @@ public:
 
 		while (!abierta.empty() && !meta_seleccionada) {
 
-			Nodo n = abierta.top(); abierta.pop();	
+			Nodo n = abierta.top(); abierta.pop();
 			cerrada.push(n);
 
 			meta_seleccionada = n.fila == nodo_meta.fila && n.columna == nodo_meta.columna;
@@ -83,10 +85,7 @@ public:
 			}
 		}
 
-		dibujarMapa();
-
 		if (meta_seleccionada) {
-			vector<pair<int, int>> camino;
 			Nodo nodo = cerrada.back();
 			int id = nodo.id;
 
@@ -97,39 +96,54 @@ public:
 				camino.push_back({ nodo.fila + 1, nodo.columna + 1 });
 				id = nodo.id;
 			}
-
-			escribirCaminoOptimo(camino);
 		}
-		else
-			std::cout << "No se ha podido encontrar el camino optimo\n";
 	}
 
-	void dibujarMapa() {
-		cout << "\nMapa: \n";
-		cout << "   ";
-		for (int i = 0; i < F; i++)
-			cout << i + 1 << "  ";
-
-		cout << "\n";
-
-		for (int i = 0; i < F; i++) {
-			cout << i + 1 << " | ";
-			for (int j = 0; j < C; ++j) {
-				if (mapa[i][j] == 'X')
-					cout << "X ";
-				else if (nodo_meta.fila == i && nodo_meta.columna == j)
-					cout << "M ";
-				else if (nodo_ini.fila == i && nodo_ini.columna == j)
-					cout << "I ";
-				else cout << ". ";
-			}
-			cout << "|\n";
-		}
-
-		cout << "\n";
+	vector<pair<int, int>> getCamino() {
+		return camino;
 	}
 
-	void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
+	friend bool operator<(Astar::Nodo const n1, Astar::Nodo const n2);
+};
+
+
+bool operator<(Astar::Nodo const n1, Astar::Nodo const n2) {
+	return n1.coste > n2.coste;
+}
+
+
+//	Muestra de forma gráfica el mapa construido por el usuario, con la casilla de inicio, meta y las casillas prohibidas
+void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<string>& mapa) {
+	cout << "\nMapa: \n";
+	cout << "   ";
+	for (int i = 0; i < F; i++)
+		cout << i + 1 << "  ";
+
+	cout << "\n";
+
+	for (int i = 0; i < F; i++) {
+		cout << i + 1 << " | ";
+		for (int j = 0; j < C; ++j) {
+			if (mapa[i][j] == 'X')
+				cout << "X ";
+			else if (meta.first == i && meta.second == j)
+				cout << "M ";
+			else if (ini.first == i && ini.second == j)
+				cout << "I ";
+			else cout << ". ";
+		}
+		cout << "|\n";
+	}
+
+	cout << "\n";
+}
+
+
+//	Muetra por pantalla la secuencia de casillas que forman el camino óptimo
+void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
+	if(camino.size() == 0)
+		cout << "No se ha podido encontrar el camino optimo\n";
+	else {
 		std::cout << "Camino optimo: \n";
 
 		for (int i = camino.size() - 1; i >= 0; --i) {
@@ -141,16 +155,11 @@ public:
 
 		cout << "\n\n";
 	}
-
-	friend bool operator<(Astar::Nodo const n1, Astar::Nodo const n2);
-};
-
-
-bool operator<(Astar::Nodo const n1, Astar::Nodo const n2) {
-	return n1.coste > n2.coste;
 }
 
-vector<string> construirTablero(int F, int C, vector<pair<int, int>>& prohibidas) {
+
+//	Construye un mapa marcando las casillas prohibidas
+vector<string> construirMapa(int F, int C, vector<pair<int, int>>& prohibidas) {
 	vector<string> tablero(F);
 
 	//	Inicialización del tablero sin casillas prohibidas
@@ -159,18 +168,160 @@ vector<string> construirTablero(int F, int C, vector<pair<int, int>>& prohibidas
 			tablero[i].push_back('.');
 
 	//	Colocación de las casillas prohibidas
-	for (auto p : prohibidas) 
+	for (auto p : prohibidas)
 		tablero[p.first][p.second] = 'X';
 
 	return tablero;
 }
 
 
-int  menu() {
+//	Pide al usuario los datos de un mapa (dimensiones, casilla de inicio, casilla de meta, casillas prohibidas), muestra el mapa construido y pide
+//	su confirmación.
+vector<string> confirmarMapa(pair<int, int>& inicio, pair<int, int>& meta) {
+	int F, C;
+	int f = -1, c = -1;
+	vector<pair<int, int>> prohibidas;
+	vector<string> mapa;
+	char respuesta;
+
+	do {
+		std::cout << "\nIntroduce las dimensiones de la matriz <F C>: ";
+		std::cin >> F >> C;
+
+		while (f > F || f < 0 || c > C || c < 0) {
+			cout << "Introduce la fila y la columna de inicio <fila columna>: ";
+			cin >> f >> c;
+		}
+		inicio = { f - 1, c - 1 };
+
+		f = -1, c = -1;
+
+		while (f > F || f <= 0 || c > C || c <= 0) {
+			cout << "Introduce la fila y la columna de meta <fila columna>: ";
+			cin >> f >> c;
+		}
+		meta = { f - 1, c - 1 };
+
+		cout << "Introduce las casillas prohibidas (0 0 para parar): ";
+		do {
+			cin >> f >> c;
+
+			while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > F || c < 0 || c > C) {
+				if (f < 0 || f > F || c < 0 || c > C)
+					cout << "Casilla erronea, introduzca una valida: ";
+				else
+					cout << "Las casillas prohibidas no pueden coincidir con la meta o el inicio: ";
+
+				cin >> f >> c;
+			}
+
+			prohibidas.push_back({ f - 1, c - 1 });
+		} while (f != 0);
+
+		prohibidas.pop_back();	//Borra el par <-1, -1> 
+
+		mapa = construirMapa(F, C, prohibidas);
+
+		cout << "¿Es el siguiente mapa correcto?";
+		dibujarMapa(F, C, inicio, meta, mapa);
+		cout << "Respuesta (s/n): ";
+		cin >> respuesta;
+
+	} while (respuesta != 's');
+	
+	return mapa;
+}
+
+
+//	Calcula el camino óptimo pasando por los distintos way points introducidos por el usuario
+vector<pair<int, int>> caminoConWayPoints(pair<int,int>& inicio, pair<int,int>& meta, vector<string>& mapa) {
+	vector<pair<int, int>> camino;
+	int f = -1, c = -1;
+	int size;
+	bool hay_camino = true;
+
+	vector<pair<int, int>> way_points;
+	vector<pair<int, int>> caminoAux;
+
+	cout << "Introduce los way points (0 0 para parar): ";
+	do {
+		cin >> f >> c;
+
+		while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size()) {
+			if (f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size())
+				cout << "Casilla erronea, introduzca una valida: ";
+			else
+				cout << "Las casillas prohibidas no pueden coincidir con la meta o el inicio: ";
+
+			cin >> f >> c;
+		}
+
+		way_points.push_back({ f - 1, c - 1 });
+	} while (f != 0);
+
+	way_points.pop_back();	//Borra el par <-1, -1>
+	camino.push_back({ inicio.first + 1, inicio.second + 1 });
+
+	int i = 0;
+	while (i < way_points.size() && hay_camino) {
+		caminoAux = Astar(mapa, inicio, way_points[i]).getCamino();
+
+		inicio = way_points[i];
+
+		hay_camino = caminoAux.size() > 0;
+
+		for (int j = caminoAux.size() - 2; j >= 0; --j)
+			camino.push_back(caminoAux[j]);
+
+		i++;
+	}
+
+	if (!hay_camino) {
+		return vector<pair<int, int>>();
+	}
+
+	caminoAux = Astar(mapa, inicio, meta).getCamino();
+	for (int j = caminoAux.size() - 2; j >= 0; --j)
+		camino.push_back(caminoAux[j]);
+
+	size = camino.size() - 1;
+	for (int x = 0; x < size; x++, size--) {
+		pair<int, int> temp = camino[x];
+		camino[x] = camino[size];
+		camino[size] = temp;
+	}
+	
+	return camino;
+}
+
+
+//	Permite al usuario elegir entre cosntruir un mapa o salir del programa
+int menu() {
 	int op;
 
 	cout << "===   ALGORITMO A*   ===\n";
-	cout << "\tFuncionalidades posibles:\n";
+
+	cout << "\tOpciones:\n";
+	cout << "\t\t1.- Construir un mapa\n";
+	cout << "\t\t0.- Salir\n";
+
+	cout << "Seleccione una opcion: ";
+	cin >> op;
+
+	while (op < 0 || op > 1) {
+		cout << "Por favor, seleccione una opcion valida (0, 1): ";
+		cin >> op;
+	}
+
+	return op;
+}
+
+
+//	Permite elegir al usuario una de las funcionalidades del programa
+int  menuFuncionalidades() {
+	int op;
+
+	cout << "\n\tFuncionalidades posibles:\n";
 	cout << "\t\t1.- Calcular el camino optimo\n";
 	cout << "\t\t2.- way points\n";
 	cout << "\t\t0.- Salir\n";
@@ -184,61 +335,30 @@ int  menu() {
 
 int main() {
 	int option = -1;
-	vector<pair<int, int>> prohibidas;	//Guarda las casillas prohibidas
-	vector<string> mapa;	//Guarda el mapa con la casilla de inicio, la casilla de meta, y las casillas prohibidas
-	pair<int, int> inicio, meta;	//Pares que representan la <fila, columna> de inicio y la meta
-	int F, C;
-	int f = -1, c = -1;
+	vector<string> mapa;	//Guarda el mapa con las casillas prohibidas
+	pair<int, int> inicio, meta;	//Pares que representan la <fila, columna> del inicio y la meta
+	vector<pair<int, int>> camino;	//Contiene los pares que representan las casillas del camino óptimo
 
 	do {
 		option = menu();
 
-		switch (option) {
-		case 1:
-			std::cout << "\nIntroduce las dimensiones de la matriz <F C>: ";
-			std::cin >> F >> C;
+		if (option == 1) {
+			mapa = confirmarMapa(inicio, meta);
 
-			while (f > F || f < 0 || c > C || c < 0) {
-				cout << "Introduce la fila y la columna de inicio <fila columna>: ";
-				cin >> f >> c;
+			option = menuFuncionalidades();
+
+			switch (option) {
+			case 1:
+				camino = Astar(mapa, inicio, meta).getCamino();
+				escribirCaminoOptimo(camino);
+				break;
+			case 2:
+				camino = caminoConWayPoints(inicio, meta, mapa);
+				escribirCaminoOptimo(camino);
+				break;
+			case 0:
+				break;
 			}
-			inicio = { f - 1, c - 1 };
-
-			f = -1, c = -1;
-
-			while (f > F || f <= 0 || c > C || c <= 0) {
-				cout << "Introduce la fila y la columna de meta <fila columna>: ";
-				cin >> f >> c;
-			}
-			meta = { f - 1, c - 1 };
-
-
-			cout << "Introduce las casillas prohibidas (0 0 para parar): ";
-			do {
-				cin >> f >> c;
-
-				while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > F || c < 0 || c > C) {
-					if(f < 0 || f > F || c < 0 || c > C)
-						cout << "Casilla erronea, introduzca una valida: ";
-					else
-						cout << "Las casillas prohibidas no pueden coincidir con la meta o el inicio: ";
-
-					cin >> f >> c;
-				}
-
-				prohibidas.push_back({ f - 1, c - 1 });
-			} while (f != 0);
-
-			prohibidas.pop_back();
-			mapa = construirTablero(F, C, prohibidas);
-
-			Astar(mapa, inicio, meta);
-			break;
-		case 2:
-			cout << "Esta opcion aun no se encuentra disponible\n";
-			break;
-		case 0:
-			break;
 		}
 
 	} while (option != 0);
