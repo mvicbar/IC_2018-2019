@@ -115,7 +115,7 @@ bool operator<(Astar::Nodo const n1, Astar::Nodo const n2) {
 //	Muestra de forma gráfica el mapa construido por el usuario, con la casilla de inicio, meta y las casillas prohibidas
 void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<string>& mapa) {
 	cout << "\nMapa: \n";
-	cout << "   ";
+	cout << "    ";
 	for (int i = 0; i < F; i++)
 		cout << i + 1 << "  ";
 
@@ -125,12 +125,14 @@ void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<
 		cout << i + 1 << " | ";
 		for (int j = 0; j < C; ++j) {
 			if (mapa[i][j] == 'X')
-				cout << "X ";
+				cout << "X  ";
 			else if (meta.first == i && meta.second == j)
-				cout << "M ";
+				cout << "M  ";
 			else if (ini.first == i && ini.second == j)
-				cout << "I ";
-			else cout << ". ";
+				cout << "I  ";
+			else if (mapa[i][j] == 'w')
+				cout << "w  ";
+			else cout << ".  ";
 		}
 		cout << "|\n";
 	}
@@ -142,7 +144,7 @@ void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<
 //	Muetra por pantalla la secuencia de casillas que forman el camino óptimo
 void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
 	if(camino.size() == 0)
-		cout << "No se ha podido encontrar el camino optimo\n";
+		cout << "No se ha podido encontrar el camino optimo\n\n";
 	else {
 		std::cout << "Camino optimo: \n";
 
@@ -160,18 +162,23 @@ void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
 
 //	Construye un mapa marcando las casillas prohibidas
 vector<string> construirMapa(int F, int C, vector<pair<int, int>>& prohibidas) {
-	vector<string> tablero(F);
+	vector<string> mapa(F);
 
 	//	Inicialización del tablero sin casillas prohibidas
 	for (int i = 0; i < F; ++i)
 		for (int j = 0; j < C; ++j)
-			tablero[i].push_back('.');
+			mapa[i].push_back('.');
 
 	//	Colocación de las casillas prohibidas
 	for (auto p : prohibidas)
-		tablero[p.first][p.second] = 'X';
+		mapa[p.first][p.second] = 'X';
 
-	return tablero;
+	return mapa;
+}
+
+void anadirWayPoints(vector<string>& mapa, vector<pair<int, int>>& way_points) {
+	for (auto w : way_points)
+		mapa[w.first][w.second] = 'w';
 }
 
 
@@ -260,7 +267,9 @@ vector<pair<int, int>> caminoConWayPoints(pair<int,int>& inicio, pair<int,int>& 
 	} while (f != 0);
 
 	way_points.pop_back();	//Borra el par <-1, -1>
-	camino.push_back({ inicio.first + 1, inicio.second + 1 });
+	anadirWayPoints(mapa, way_points);
+	dibujarMapa(mapa.size(), mapa[0].size(), inicio, meta, mapa);
+	camino.push_back({ inicio.first - 1, inicio.second - 1 });
 
 	int i = 0;
 	while (i < way_points.size() && hay_camino) {
@@ -362,8 +371,6 @@ int main() {
 		}
 
 	} while (option != 0);
-
-	system("PAUSE");
 
 	return 0;
 }
