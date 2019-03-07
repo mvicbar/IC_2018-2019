@@ -114,7 +114,7 @@ bool operator<(Astar::Nodo const n1, Astar::Nodo const n2) {
 
 //	Muestra de forma gráfica el mapa construido por el usuario, con la casilla de inicio, meta y las casillas prohibidas
 void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<string>& mapa) {
-	cout << "\nMapa: \n";
+	cout << "\n\nMapa: \n";
 	cout << "    ";
 	for (int i = 0; i < C; i++)
 		cout << i + 1 << "  ";
@@ -146,7 +146,7 @@ void escribirCaminoOptimo(vector<pair<int, int>>& camino) {
 	if(camino.size() == 0)
 		cout << "No se ha podido encontrar el camino optimo\n\n";
 	else {
-		std::cout << "Camino optimo: \n";
+		std::cout << "\nCamino optimo: \n";
 
 		for (int i = camino.size() - 1; i >= 0; --i) {
 			std::cout << "(" << camino[i].first << ", " << camino[i].second << ")";
@@ -232,7 +232,7 @@ vector<string> confirmarMapa(pair<int, int>& inicio, pair<int, int>& meta) {
 
 		mapa = construirMapa(F, C, prohibidas);
 
-		cout << "¿Es el siguiente mapa correcto?";
+		cout << "\n¿Es el siguiente mapa correcto?";
 		dibujarMapa(F, C, inicio, meta, mapa);
 		cout << "Respuesta (s/n): ";
 		cin >> respuesta;
@@ -253,17 +253,25 @@ vector<pair<int, int>> caminoConWayPoints(pair<int,int>& inicio, pair<int,int>& 
 	vector<pair<int, int>> way_points;
 	vector<pair<int, int>> caminoAux;
 
-	cout << "Introduce los way points (0 0 para parar): ";
+	cout << "\nIntroduce los way points (0 0 para parar): ";
 	do {
 		cin >> f >> c;
+		
+		if (f != 0 && c != 0) {
 
-		while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size()) {
-			if (f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size())
-				cout << "Casilla erronea, introduzca una valida: ";
-			else
-				cout << "Las casillas prohibidas no pueden coincidir con la meta o el inicio: ";
+			while ((f - 1 == inicio.first && c - 1 == inicio.second) || (f - 1 == meta.first && c - 1 == meta.second) || f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size() || mapa[f - 1][c - 1] == 'X') {
+				if (f < 0 || f > mapa.size() || c < 0 || c > mapa[0].size())
+					cout << "Casilla erronea, introduzca una valida: ";
+				else if (mapa[f - 1][c - 1] == 'X')
+					cout << "No se puede establecer un way point en una casilla prohibida.\nPor favor, introduzca una casilla valida: ";
+				else
+					cout << "Los way points no pueden coincidir con la meta o el inicio. \nPor favor, introduzca una casilla valida: ";
 
-			cin >> f >> c;
+				cin >> f >> c;
+
+				if (f == 0 || c == 0)
+					break;
+			}
 		}
 
 		way_points.push_back({ f - 1, c - 1 });
@@ -272,7 +280,7 @@ vector<pair<int, int>> caminoConWayPoints(pair<int,int>& inicio, pair<int,int>& 
 	way_points.pop_back();	//Borra el par <-1, -1>
 	anadirWayPoints(mapa, way_points);
 	dibujarMapa(mapa.size(), mapa[0].size(), inicio, meta, mapa);
-	camino.push_back({ inicio.first - 1, inicio.second - 1 });
+	camino.push_back({ inicio.first + 1, inicio.second + 1 });
 
 	int i = 0;
 	while (i < way_points.size() && hay_camino) {
