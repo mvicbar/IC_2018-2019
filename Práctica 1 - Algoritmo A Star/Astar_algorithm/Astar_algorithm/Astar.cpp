@@ -116,7 +116,7 @@ bool operator<(Astar::Nodo const n1, Astar::Nodo const n2) {
 void dibujarMapa(int F, int C, pair<int,int>& ini, pair<int, int>& meta, vector<string>& mapa) {
 	cout << "\nMapa: \n";
 	cout << "    ";
-	for (int i = 0; i < F; i++)
+	for (int i = 0; i < C; i++)
 		cout << i + 1 << "  ";
 
 	cout << "\n";
@@ -190,24 +190,27 @@ vector<string> confirmarMapa(pair<int, int>& inicio, pair<int, int>& meta) {
 	vector<pair<int, int>> prohibidas;
 	vector<string> mapa;
 	char respuesta;
+	char basura[80];
 
 	do {
-		std::cout << "\nIntroduce las dimensiones de la matriz <F C>: ";
-		std::cin >> F >> C;
 
-		while (f > F || f < 0 || c > C || c < 0) {
+		do {
+			cout << "\nIntroduce las dimensiones de la matriz <F C>: ";
+			cin >> F >> C;
+		} while (F == 0 || F < 0 || C == 0 || C < 0);
+
+		do {
 			cout << "Introduce la fila y la columna de inicio <fila columna>: ";
 			cin >> f >> c;
-		}
+		} while (f > F || f < 0 || c > C || c < 0);
 		inicio = { f - 1, c - 1 };
 
-		f = -1, c = -1;
-
-		while (f > F || f <= 0 || c > C || c <= 0) {
+		do {
 			cout << "Introduce la fila y la columna de meta <fila columna>: ";
 			cin >> f >> c;
-		}
+		} while (f > F || f <= 0 || c > C || c <= 0);
 		meta = { f - 1, c - 1 };
+
 
 		cout << "Introduce las casillas prohibidas (0 0 para parar): ";
 		do {
