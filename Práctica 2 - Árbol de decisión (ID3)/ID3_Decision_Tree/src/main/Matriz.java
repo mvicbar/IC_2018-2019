@@ -82,7 +82,6 @@ public class Matriz {
 	 * @param valor		Nombre del valor que del atributo que deben tener los ejemplos
 	 */
 	public void partirMatriz(String atributo, String valor){
-		List<String> atributosRestantes = new ArrayList<>();
 		int columnaAtributo = -1;
 		boolean found = false;
 		

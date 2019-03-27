@@ -15,45 +15,44 @@ public class ID3 {
 	 */
 	double merito(String atributo, ArrayList<String[]> valores, String[] atributos){
 		double merito = 0.0;
-		int ind = 0; boolean found = false;
+		int columnaAtributo = 0; boolean found = false;
 		
-		while(ind < atributos.length && !found){
-			found = atributos[ind] == atributo;
-			ind++;
+		while(columnaAtributo < atributos.length && !found){
+			found = atributos[columnaAtributo] == atributo;
+			columnaAtributo++;
 		}
 		
-		ind = ind - 1; int jugar = atributos.length - 1;
+		columnaAtributo = columnaAtributo - 1; int columnaDecision = atributos.length - 1;
 		
-		HashMap<String, Data> valores_atributo = new HashMap<String, Data>();
+		HashMap<String, ValueData> valoresAtributo = new HashMap<String, ValueData>();
 		
 		//	Rellena las tablas de cada valor del atributo, con sus ejemplos positivos y negativos
 		for(int f = 0; f < valores.size(); ++f){
 			
-			if(valores_atributo.containsKey(valores.get(f)[ind])){
-				Data d = valores_atributo.get(valores.get(f)[ind]);
-				d.setTotal(d.getTotal() + 1);
+			if(valoresAtributo.containsKey(valores.get(f)[columnaAtributo])){
+				ValueData valueData = valoresAtributo.get(valores.get(f)[columnaAtributo]);
+				valueData.setTotal(valueData.getTotal() + 1);
 				
-				if(valores.get(f)[jugar] == "si")
-					d.setPositive(d.getPositive() + 1);
+				if(valores.get(f)[columnaDecision] == "si")
+					valueData.setPositive(valueData.getPositive() + 1);
 				else
-					d.setNegative(d.getNegative() + 1);
+					valueData.setNegative(valueData.getNegative() + 1);
 			}else{
-				Data d = new Data();
+				ValueData d = new ValueData();
 				d.setTotal(1);
 				
-				if(valores.get(f)[jugar] == "si")
+				if(valores.get(f)[columnaDecision] == "si")
 					d.setPositive(1);
 				else
 					d.setNegative(1);
 				
-				valores_atributo.put(valores.get(f)[ind], d);
+				valoresAtributo.put(valores.get(f)[columnaAtributo], d);
 			}
 		}
 		
-		
-		for(String v : valores_atributo.keySet()){
-			Data d = valores_atributo.get(v);
-			merito += (d.getTotal()/valores.size()) * infor(d.getTotal(), d.getPositive(), d.getNegative());
+		for(String v : valoresAtributo.keySet()){
+			ValueData vd = valoresAtributo.get(v);
+			merito += (vd.getTotal()/valores.size()) * infor(vd.getTotal(), vd.getPositive(), vd.getNegative());
 		}
 		
 		return merito;
@@ -116,11 +115,15 @@ public class ID3 {
 		if(allNegative)
 			return new Nodo("no", new ArrayList<Nodo>());
 		
-		PriorityQueue<Double> meritos = new PriorityQueue<Double>();
-		for(String atributo : listaAtributos)
-			meritos.add(merito(atributo, listaEjemplos, listaAtributos));
+		//	Cálculo y ordenación de los méritos de todos los atributos
+		PriorityQueue<Pair> meritos =  new PriorityQueue<Pair>();
 		
-		// TODO: seleccionar el atributo de menor mérito, y devolver un nodo
+		for(String atributo : listaAtributos)
+			meritos.add(new Pair(atributo, merito(atributo, listaEjemplos, listaAtributos)));
+		
+		String mejorAtributo = meritos.element().getFirst();
+		
+		// TODO: añadir al nodo la lista de valores del atributo
 		
 		return null;
 		

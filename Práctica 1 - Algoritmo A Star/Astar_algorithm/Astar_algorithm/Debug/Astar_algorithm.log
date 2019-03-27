@@ -1,6 +1,1 @@
-﻿  Astar.cpp
-c:\users\victo\documents\github\ic_2018-2019\práctica 1 - algoritmo a star\astar_algorithm\astar_algorithm\astar.cpp(193): warning C4101: 'basura': variable local sin referencia
-c:\users\victo\documents\github\ic_2018-2019\práctica 1 - algoritmo a star\astar_algorithm\astar_algorithm\astar.cpp(262): warning C4018: '>': no coinciden signed/unsigned
-c:\users\victo\documents\github\ic_2018-2019\práctica 1 - algoritmo a star\astar_algorithm\astar_algorithm\astar.cpp(263): warning C4018: '>': no coinciden signed/unsigned
-c:\users\victo\documents\github\ic_2018-2019\práctica 1 - algoritmo a star\astar_algorithm\astar_algorithm\astar.cpp(286): warning C4018: '<': no coinciden signed/unsigned
-  Astar_algorithm.vcxproj -> C:\Users\victo\Documents\GitHub\IC_2018-2019\Práctica 1 - Algoritmo A Star\Astar_algorithm\Debug\Astar_algorithm.exe
+﻿  Astar_algorithm.vcxproj -> C:\Users\victo\Documents\GitHub\IC_2018-2019\Práctica 1 - Algoritmo A Star\Astar_algorithm\Debug\Astar_algorithm.exe
