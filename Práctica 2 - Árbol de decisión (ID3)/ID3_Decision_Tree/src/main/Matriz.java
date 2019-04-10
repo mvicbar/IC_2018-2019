@@ -55,6 +55,7 @@ public class Matriz {
 			this.C = this.atributos.length;
 			String lineaEjemplo;
 			
+			this.ejemplos = new ArrayList<String[]>();
 			while((lineaEjemplo = bfEjs.readLine()) != null){
 				this.ejemplos.add(lineaEjemplo.split(","));
 			}
@@ -79,7 +80,7 @@ public class Matriz {
 	 * Parte la matriz y la devuelve sin la comuna del 'atributo' y sólo con los ejemplos donde el valor para ese
 	 * atributo coincide con 'valor'
 	 * @param atributo	Nombre del atributo que tiene que ser eliminado de la matriz
-	 * @param valor		Nombre del valor que del atributo que deben tener los ejemplos
+	 * @param valor		Nombre del valor del atributo que deben tener los ejemplos
 	 */
 	public void partirMatriz(String atributo, String valor){
 		int columnaAtributo = -1;

@@ -2,7 +2,7 @@ package main;
 
 import java.util.Comparator;
 
-public class Pair {
+public class Pair implements Comparable {
 	public String first;
 	public Double second;
 	
@@ -34,6 +34,12 @@ public class Pair {
 
 	public void setSecond(Double second) {
 		this.second = second;
+	}
+
+	@Override
+	public int compareTo(Object arg0) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	

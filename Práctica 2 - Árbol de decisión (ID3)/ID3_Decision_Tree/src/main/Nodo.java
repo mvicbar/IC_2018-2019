@@ -9,8 +9,20 @@ public class Nodo {
 	private ArrayList<String> valores;
 	private double merito;
 	
+	public Nodo(){
+		this.ramas = new ArrayList<Nodo>();
+		this.valores = new ArrayList<String>();
+	}
+	
 	public Nodo(String atributo, ArrayList<Nodo> ramas){
 		this.atributo = atributo;
+		this.ramas = ramas;
+	}
+	
+	public Nodo(String atributo, double merito, ArrayList<String> valores, ArrayList<Nodo> ramas){
+		this.atributo = atributo;
+		this.merito = merito;
+		this.valores = valores;
 		this.ramas = ramas;
 	}
 
@@ -24,6 +36,10 @@ public class Nodo {
 
 	public ArrayList<Nodo> getRamas() {
 		return ramas;
+	}
+	
+	public void addRama(Nodo n){
+		this.ramas.add(n);
 	}
 
 	public void setRamas(ArrayList<Nodo> ramas) {

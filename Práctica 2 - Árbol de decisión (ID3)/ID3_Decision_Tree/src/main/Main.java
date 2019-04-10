@@ -3,8 +3,47 @@ package main;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 
-public class ID3 {
+public class Main {
+
+	public static Matriz tabla = new Matriz();
+	
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		String archivoAtributos, archivoEjemplos;
+		
+		System.out.println("Árbol de decisión - ID3");
+		
+		System.out.println("Indica el nombre del archivo de atributos: ");
+		archivoAtributos = scanner.nextLine();
+		System.out.println("Indica el nombre del archivo de ejemplos: ");
+		archivoEjemplos = scanner.nextLine();
+		
+		tabla.leerFicheros(archivoAtributos, archivoEjemplos);
+		
+		//		Cálculo y ordenación de los méritos de todos los atributos
+		PriorityQueue<Pair> meritos =  new PriorityQueue<Pair>();
+		ArrayList<String> valoresAtributo = new ArrayList<String>();
+		HashMap<String, ArrayList<String>> atrValores = new HashMap<String, ArrayList<String>>();
+			
+		for(String atributo : tabla.atributos){
+			double m = merito(atributo, tabla.ejemplos, tabla.atributos, valoresAtributo);
+			atrValores.put(atributo, valoresAtributo);
+			meritos.add(new Pair(atributo, m));
+		}
+			
+		String mejorAtributo = meritos.element().getFirst();
+			
+		Nodo raiz = new Nodo(mejorAtributo, meritos.element().getSecond(), atrValores.get(mejorAtributo), new ArrayList<Nodo>());
+		
+		System.out.println("El nodo raíz es: " + raiz.getAtributo());
+		
+		algoritmoID3(raiz, tabla.ejemplos, tabla.atributos);
+
+		System.out.println("Hola");
+		
+	}
 
 	/**
 	 * Calcula el mérito de un atributo
@@ -13,7 +52,7 @@ public class ID3 {
 	 * @param atributos	Lista de atributos
 	 * @return	El mérito del atributo
 	 */
-	double merito(String atributo, ArrayList<String[]> valores, String[] atributos, ArrayList<String> valoresAtr){
+	public static double merito(String atributo, ArrayList<String[]> valores, String[] atributos, ArrayList<String> valoresAtr){
 		double merito = 0.0;
 		int columnaAtributo = 0; boolean found = false;
 		
@@ -67,7 +106,7 @@ public class ID3 {
 	 * @param negativos	Número de ejemplos negativos
 	 * @return	Entropía del valor del atributo
 	 */
-	double infor(int total, int positivos, int negativos){
+	public static double infor(int total, int positivos, int negativos){
 		double entropy = 0.0, p, n;
 		
 		n = (negativos/total);
@@ -88,10 +127,10 @@ public class ID3 {
 	}
 	
 	
-	public Nodo algoritmoID3(ArrayList<String[]> listaEjemplos, String[] listaAtributos){
+	public static void algoritmoID3(Nodo raiz, ArrayList<String[]> listaEjemplos, String[] listaAtributos){
 		//	Si la lista de ejemplos está vacía, el algoritmo termina
 		if(listaEjemplos.isEmpty())
-			return null;
+			raiz.addRama(null);
 		
 		//	Si todos los ejemplos en la lista de ejemplos son positivos, se devuelve un nodo hoja positivo
 		boolean allPositive = true;
@@ -103,7 +142,7 @@ public class ID3 {
 		}
 		
 		if(allPositive)
-			return new Nodo("Si", new ArrayList<Nodo>());
+			raiz.addRama(new Nodo("Si", new ArrayList<Nodo>()));
 		
 		
 		//	Si todos los ejemplos en la lista de ejemplos son negativos, se devuelve un nodo hoja negativo
@@ -116,7 +155,7 @@ public class ID3 {
 		}
 		
 		if(allNegative)
-			return new Nodo("no", new ArrayList<Nodo>());
+			raiz.addRama(new Nodo("No", new ArrayList<Nodo>()));
 		
 		//	Cálculo y ordenación de los méritos de todos los atributos
 		PriorityQueue<Pair> meritos =  new PriorityQueue<Pair>();
@@ -131,9 +170,14 @@ public class ID3 {
 		
 		String mejorAtributo = meritos.element().getFirst();
 		
-		//Nodo mejor = new Nodo(mejorAtributo, meritos.element().getSecond(), atrValores.get(mejorAtributo));
-				
-		return null;
+		Nodo mejor = new Nodo(mejorAtributo, meritos.element().getSecond(), atrValores.get(mejorAtributo), new ArrayList<Nodo>());
 		
+		for(String valor : mejor.getValores()){
+			tabla.partirMatriz(mejor.getAtributo(), valor);
+
+			algoritmoID3(mejor, tabla.ejemplos, tabla.atributos);
+		}
+
 	}
+	
 }
