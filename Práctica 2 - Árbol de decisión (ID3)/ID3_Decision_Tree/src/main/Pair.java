@@ -15,7 +15,7 @@ public class Pair implements Comparable {
 
 		@Override
 		public int compare(Pair p1, Pair p2) {
-			return p1.second < p2.second ? 0 : -1;
+			return p1.second > p2.second ? 0 : -1;
 		}
 		
 	};

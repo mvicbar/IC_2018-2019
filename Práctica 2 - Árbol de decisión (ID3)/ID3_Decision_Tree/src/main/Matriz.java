@@ -11,8 +11,22 @@ public class Matriz {
 	private int F;
 	private int C;
 	
-	String[] atributos;
-	ArrayList<String[]> ejemplos;
+	private String[] atributos;
+	private ArrayList<String[]> ejemplos;
+	
+	public Matriz(){
+		this.F = -1;
+		this.C = -1;
+		this.atributos = new String[10];
+		this.ejemplos = new ArrayList<String[]>();
+	}
+	
+	public Matriz(int F, int C, String[] atributos, ArrayList<String[]> ejemplos){
+		this.F = F;
+		this.C = C;
+		this.atributos = atributos;
+		this.ejemplos = ejemplos;
+	}
 	
 	public int getF() {
 		return F;
@@ -82,7 +96,7 @@ public class Matriz {
 	 * @param atributo	Nombre del atributo que tiene que ser eliminado de la matriz
 	 * @param valor		Nombre del valor del atributo que deben tener los ejemplos
 	 */
-	public void partirMatriz(String atributo, String valor){
+	public Matriz partirMatriz(String atributo, String valor){
 		int columnaAtributo = -1;
 		boolean found = false;
 		
@@ -100,11 +114,13 @@ public class Matriz {
 				this.atributos[j] = this.atributos[j+1];
 		}
 		
+		this.C = this.C - 1;
+		
 		ArrayList<String[]> ejemplosValor = new ArrayList<String[]>();
 		
 		//	Se buscan y guardan las filas donde el valor del atributo es el obtenido por parámetro
 		for(int f = 0; f < this.F; f++){
-			if(this.ejemplos.get(f)[columnaAtributo] == valor){
+			if(this.ejemplos.get(f)[columnaAtributo].equals(valor)){
 				ejemplosValor.add(this.ejemplos.get(f));
 			}
 		}
@@ -116,6 +132,40 @@ public class Matriz {
 		}
 		
 		this.ejemplos = ejemplosValor;
+		this.F = ejemplosValor.size();
+		
+		return this;
+	}
+	
+	/**
+	 * Hace una copia de una matriz de atributos y ejemplos
+	 */
+	public void copiarTabla(Matriz tabla){
+		int F = tabla.F;
+		int C = tabla.C;
+		
+		this.F = F; this.C = C;
+		
+		//	Se hace una copia del array de atributos
+		String[] atributos = new String[tabla.atributos.length];
+		
+		for(int i = 0; i < atributos.length; i++)
+			atributos[i] = tabla.atributos[i];
+		
+		//	Se hace una copia de cada array de ejemplo
+		ArrayList<String[]> ejemplos = new ArrayList<String[]>();
+		
+		for(int i = 0; i < tabla.ejemplos.size(); i++){
+			String[] e = tabla.ejemplos.get(i);
+			String[] ej = new String[e.length];
+			for(int j = 0; j < e.length; j++)
+				ej[j] = e[j];
+			
+			ejemplos.add(ej);
+		}
+		
+		this.atributos = atributos;
+		this.ejemplos = ejemplos;
 	}
 
 }

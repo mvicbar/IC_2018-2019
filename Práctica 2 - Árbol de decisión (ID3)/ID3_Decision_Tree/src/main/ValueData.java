@@ -11,26 +11,26 @@ import java.util.ArrayList;
  */
 public class ValueData {
 
-	private int total;
-	private int positive;
-	private int negative;
+	private double total;
+	private double positive;
+	private double negative;
 
-	public int getTotal() {
+	public double getTotal() {
 		return total;
 	}
-	public void setTotal(int total) {
+	public void setTotal(double total) {
 		this.total = total;
 	}
-	public int getPositive() {
+	public double getPositive() {
 		return positive;
 	}
-	public void setPositive(int positive) {
+	public void setPositive(double positive) {
 		this.positive = positive;
 	}
-	public int getNegative() {
+	public double getNegative() {
 		return negative;
 	}
-	public void setNegative(int negative) {
+	public void setNegative(double negative) {
 		this.negative = negative;
 	}
 	

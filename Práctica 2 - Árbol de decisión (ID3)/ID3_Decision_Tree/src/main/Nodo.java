@@ -1,28 +1,25 @@
 package main;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Nodo {
 
 	private String atributo;
-	private ArrayList<Nodo> ramas;
-	private ArrayList<String> valores;
+	HashMap<String, Nodo> ramas;
 	private double merito;
 	
 	public Nodo(){
-		this.ramas = new ArrayList<Nodo>();
-		this.valores = new ArrayList<String>();
+		this.ramas = new HashMap<String, Nodo>();
 	}
 	
-	public Nodo(String atributo, ArrayList<Nodo> ramas){
+	public Nodo(String atributo, HashMap<String, Nodo> ramas){
 		this.atributo = atributo;
 		this.ramas = ramas;
 	}
 	
-	public Nodo(String atributo, double merito, ArrayList<String> valores, ArrayList<Nodo> ramas){
+	public Nodo(String atributo, double merito, HashMap<String, Nodo> ramas){
 		this.atributo = atributo;
 		this.merito = merito;
-		this.valores = valores;
 		this.ramas = ramas;
 	}
 
@@ -34,24 +31,16 @@ public class Nodo {
 		this.atributo = atributo;
 	}
 
-	public ArrayList<Nodo> getRamas() {
+	public HashMap<String, Nodo> getRamas() {
 		return ramas;
 	}
 	
-	public void addRama(Nodo n){
-		this.ramas.add(n);
+	public void addRama(String valor, Nodo n){
+		this.ramas.put(valor, n);
 	}
 
-	public void setRamas(ArrayList<Nodo> ramas) {
+	public void setRamas(HashMap<String, Nodo> ramas) {
 		this.ramas = ramas;
-	}
-
-	public ArrayList<String> getValores() {
-		return valores;
-	}
-
-	public void setValores(ArrayList<String> valores) {
-		this.valores = valores;
 	}
 
 	public double getMerito() {

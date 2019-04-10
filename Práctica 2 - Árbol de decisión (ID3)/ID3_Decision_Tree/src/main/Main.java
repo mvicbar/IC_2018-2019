@@ -2,14 +2,14 @@ package main;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.PriorityQueue;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Main {
 
-	public static Matriz tabla = new Matriz();
 	
 	public static void main(String[] args) {
+		Matriz tabla = new Matriz();
 		Scanner scanner = new Scanner(System.in);
 		String archivoAtributos, archivoEjemplos;
 		
@@ -22,27 +22,12 @@ public class Main {
 		
 		tabla.leerFicheros(archivoAtributos, archivoEjemplos);
 		
-		//		Cálculo y ordenación de los méritos de todos los atributos
-		PriorityQueue<Pair> meritos =  new PriorityQueue<Pair>();
-		ArrayList<String> valoresAtributo = new ArrayList<String>();
-		HashMap<String, ArrayList<String>> atrValores = new HashMap<String, ArrayList<String>>();
-			
-		for(String atributo : tabla.atributos){
-			double m = merito(atributo, tabla.ejemplos, tabla.atributos, valoresAtributo);
-			atrValores.put(atributo, valoresAtributo);
-			meritos.add(new Pair(atributo, m));
-		}
-			
-		String mejorAtributo = meritos.element().getFirst();
-			
-		Nodo raiz = new Nodo(mejorAtributo, meritos.element().getSecond(), atrValores.get(mejorAtributo), new ArrayList<Nodo>());
+		Nodo raiz = new Nodo();
+		algoritmoID3(raiz, tabla);
+				
+		System.out.println("Final sin excepciones, nice");
 		
-		System.out.println("El nodo raíz es: " + raiz.getAtributo());
-		
-		algoritmoID3(raiz, tabla.ejemplos, tabla.atributos);
-
-		System.out.println("Hola");
-		
+		scanner.close();
 	}
 
 	/**
@@ -52,12 +37,14 @@ public class Main {
 	 * @param atributos	Lista de atributos
 	 * @return	El mérito del atributo
 	 */
-	public static double merito(String atributo, ArrayList<String[]> valores, String[] atributos, ArrayList<String> valoresAtr){
+	public static double merito(String atributo, Matriz tabla, ArrayList<String> valoresAtr) {
 		double merito = 0.0;
 		int columnaAtributo = 0; boolean found = false;
+		ArrayList<String[]> valores = tabla.getEjemplos();
+		String[] atributos = tabla.getAtributos();
 		
-		while(columnaAtributo < atributos.length && !found){
-			found = atributos[columnaAtributo] == atributo;
+		while(columnaAtributo < tabla.getC() && !found){
+			found = atributos[columnaAtributo].equals(atributo);
 			columnaAtributo++;
 		}
 		
@@ -66,7 +53,7 @@ public class Main {
 		HashMap<String, ValueData> valoresAtributo = new HashMap<String, ValueData>();
 		
 		//	Rellena las tablas de cada valor del atributo, con sus ejemplos positivos y negativos
-		for(int f = 0; f < valores.size(); ++f){
+		for(int f = 0; f < tabla.getF(); ++f){
 			
 			if(valoresAtributo.containsKey(valores.get(f)[columnaAtributo])){
 				ValueData valueData = valoresAtributo.get(valores.get(f)[columnaAtributo]);
@@ -106,7 +93,7 @@ public class Main {
 	 * @param negativos	Número de ejemplos negativos
 	 * @return	Entropía del valor del atributo
 	 */
-	public static double infor(int total, int positivos, int negativos){
+	public static double infor(double total, double positivos, double negativos){
 		double entropy = 0.0, p, n;
 		
 		n = (negativos/total);
@@ -127,10 +114,12 @@ public class Main {
 	}
 	
 	
-	public static void algoritmoID3(Nodo raiz, ArrayList<String[]> listaEjemplos, String[] listaAtributos){
+	public static void algoritmoID3(Nodo raiz, Matriz tabla){
+		ArrayList<String[]> listaEjemplos = tabla.getEjemplos();
+		
 		//	Si la lista de ejemplos está vacía, el algoritmo termina
 		if(listaEjemplos.isEmpty())
-			raiz.addRama(null);
+			raiz.addRama(null, null);
 		
 		//	Si todos los ejemplos en la lista de ejemplos son positivos, se devuelve un nodo hoja positivo
 		boolean allPositive = true;
@@ -142,40 +131,55 @@ public class Main {
 		}
 		
 		if(allPositive)
-			raiz.addRama(new Nodo("Si", new ArrayList<Nodo>()));
+			raiz.setAtributo("Si");
+		else{
+			
+			//	Si todos los ejemplos en la lista de ejemplos son negativos, se devuelve un nodo hoja negativo
+			boolean allNegative = true;
+			f = 0;
+			while(allNegative && f < listaEjemplos.size()){
+				String[] ejemplo = listaEjemplos.get(f);
+				allNegative = ejemplo[ejemplo.length - 1].equals("no");
+				f++;
+			}
+			
+			if(allNegative)
+				raiz.setAtributo("No");
+			else{
 		
-		
-		//	Si todos los ejemplos en la lista de ejemplos son negativos, se devuelve un nodo hoja negativo
-		boolean allNegative = true;
-		f = 0;
-		while(allNegative && f < listaEjemplos.size()){
-			String[] ejemplo = listaEjemplos.get(f);
-			allNegative = ejemplo[ejemplo.length - 1].equals("no");
-			f++;
-		}
-		
-		if(allNegative)
-			raiz.addRama(new Nodo("No", new ArrayList<Nodo>()));
-		
-		//	Cálculo y ordenación de los méritos de todos los atributos
-		PriorityQueue<Pair> meritos =  new PriorityQueue<Pair>();
-		ArrayList<String> valoresAtributo = new ArrayList<String>();
-		HashMap<String, ArrayList<String>> atrValores = new HashMap<String, ArrayList<String>>();
-		
-		for(String atributo : listaAtributos){
-			double m = merito(atributo, listaEjemplos, listaAtributos, valoresAtributo);
-			atrValores.put(atributo, valoresAtributo);
-			meritos.add(new Pair(atributo, m));
-		}
-		
-		String mejorAtributo = meritos.element().getFirst();
-		
-		Nodo mejor = new Nodo(mejorAtributo, meritos.element().getSecond(), atrValores.get(mejorAtributo), new ArrayList<Nodo>());
-		
-		for(String valor : mejor.getValores()){
-			tabla.partirMatriz(mejor.getAtributo(), valor);
-
-			algoritmoID3(mejor, tabla.ejemplos, tabla.atributos);
+				//	Cálculo y ordenación de los méritos de todos los atributos
+				TreeMap<Double, String> meritos = new TreeMap<Double, String>();
+				HashMap<String, ArrayList<String>> atrValores = new HashMap<String, ArrayList<String>>();
+				
+				for(int i = 0; i < tabla.getC() - 1; i++){
+					String atributo = tabla.getAtributos()[i];
+					ArrayList<String> valoresAtributo = new ArrayList<String>();
+					double m = merito(atributo, tabla, valoresAtributo);
+					atrValores.put(atributo, valoresAtributo);
+					meritos.put(m, atributo);
+				}
+					
+				String mejorAtributo = meritos.get(meritos.firstKey());
+					
+				raiz.setAtributo(mejorAtributo);
+				raiz.setMerito(meritos.firstKey());
+				raiz.setRamas(new HashMap<String, Nodo>());
+				
+				System.out.println("El nodo raíz es: " + raiz.getAtributo());
+				
+				for(String valor : atrValores.get(mejorAtributo)){
+					raiz.addRama(valor, new Nodo("", new HashMap<String, Nodo>()));
+				}
+				
+				for(String valor : raiz.ramas.keySet()){
+					Matriz partida = new Matriz();
+					partida.copiarTabla(tabla);
+					partida.partirMatriz(mejorAtributo, valor);
+					Nodo hijo = raiz.getRamas().get(valor);
+					algoritmoID3(hijo, partida);
+				}
+				
+			}
 		}
 
 	}
