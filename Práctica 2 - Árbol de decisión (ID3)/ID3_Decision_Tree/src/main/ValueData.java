@@ -1,11 +1,11 @@
 package main;
 
-import java.util.ArrayList;
 
 /**
  * Representa los datos del valor de un atributo relevantes para el cálculo del mérito
  * de dicho atributo (ejemplos totales en los que aparece, número de ejemplos positivos,
  * y número de ejemplos negativos).
+ * 
  * @author victo
  *
  */

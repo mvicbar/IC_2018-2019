@@ -2,6 +2,16 @@ package main;
 
 import java.util.HashMap;
 
+/**
+ * 	Clase que representa un nodo del árbol de decisión.
+ * 
+ * 	Cuenta con un atributo de tipo String que contiene el atributo al que hace referencia el nodo.
+ * 	Los hijos del nodo se guardan en un HashMap que relaciona cada valor del atributo, con el árbol
+ * 	que corresponde.
+ * 	También guarda el mérito del atributo.
+ * @author victo
+ *
+ */
 public class Nodo {
 
 	private String atributo;

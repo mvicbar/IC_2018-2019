@@ -15,18 +15,32 @@ public class Main {
 		
 		System.out.println("Árbol de decisión - ID3");
 		
-		System.out.println("Indica el nombre del archivo de atributos: ");
+		System.out.println("Indique el nombre del archivo de atributos (.txt): ");
 		archivoAtributos = scanner.nextLine();
-		System.out.println("Indica el nombre del archivo de ejemplos: ");
+		System.out.println("Indique el nombre del archivo de ejemplos (.txt): ");
 		archivoEjemplos = scanner.nextLine();
 		
 		tabla.leerFicheros(archivoAtributos, archivoEjemplos);
 		
 		Nodo raiz = new Nodo();
 		algoritmoID3(raiz, tabla);
-				
-		System.out.println("Final sin excepciones, nice");
 		
+		ArrayList<ArrayList<String>> reglas = new ArrayList<ArrayList<String>>();
+		ArrayList<String> regla = new ArrayList<String>();
+		imprimirReglas(raiz, reglas, regla);
+		
+		System.out.println("");
+		System.out.println("Estas son las reglas deducidas del árbol de decisión: \n");
+		
+		for(ArrayList<String> r : reglas){
+			String re = "";
+			for(String s : r){
+				re = re + s;
+			}
+			
+			System.out.println(re);
+		}
+				
 		scanner.close();
 	}
 
@@ -113,7 +127,11 @@ public class Main {
 		return entropy;
 	}
 	
-	
+	/**
+	 * Algoritmo recursivo que, dado una tabla con atributos y ejemplos, crea un árbol de decisión
+	 * @param raiz	Nodo en el que se va a crear en árbol de decisión
+	 * @param tabla	Tabla con los atributos y ejemplos
+	 */
 	public static void algoritmoID3(Nodo raiz, Matriz tabla){
 		ArrayList<String[]> listaEjemplos = tabla.getEjemplos();
 		
@@ -131,7 +149,7 @@ public class Main {
 		}
 		
 		if(allPositive)
-			raiz.setAtributo("Si");
+			raiz.setAtributo("Sí");
 		else{
 			
 			//	Si todos los ejemplos en la lista de ejemplos son negativos, se devuelve un nodo hoja negativo
@@ -164,9 +182,7 @@ public class Main {
 				raiz.setAtributo(mejorAtributo);
 				raiz.setMerito(meritos.firstKey());
 				raiz.setRamas(new HashMap<String, Nodo>());
-				
-				System.out.println("El nodo raíz es: " + raiz.getAtributo());
-				
+								
 				for(String valor : atrValores.get(mejorAtributo)){
 					raiz.addRama(valor, new Nodo("", new HashMap<String, Nodo>()));
 				}
@@ -182,6 +198,40 @@ public class Main {
 			}
 		}
 
+	}
+	
+	
+	/**
+	 * Rellena un ArrayList con las reglas deducidas del árbol de decisión
+	 * @param raiz	Nodo que se está evaluando
+	 * @param reglas	ArrayList que contiene todas las reglas
+	 * @param regla	Reglas que se está formando en ese momento
+	 */
+	public static void imprimirReglas(Nodo raiz, ArrayList<ArrayList<String>> reglas, ArrayList<String> regla){
+		
+		regla.add(raiz.getAtributo().toUpperCase());
+		
+		for(String valor : raiz.getRamas().keySet()){
+			regla.add(" -> ");
+			regla.add(valor + " -> ");
+			Nodo hijo = raiz.getRamas().get(valor);
+			imprimirReglas(hijo, reglas, regla);
+		}
+		
+		if(raiz.getRamas().isEmpty()){
+		
+			ArrayList<String> aux = new ArrayList<String>();
+			for(String s : regla)
+				aux.add(s);
+			
+			reglas.add(aux);		
+		}
+		
+		if(regla.size() != 1){
+			regla.remove(regla.size() - 1);
+			regla.remove(regla.size() - 1);
+			regla.remove(regla.size() - 1);
+		}
 	}
 	
 }

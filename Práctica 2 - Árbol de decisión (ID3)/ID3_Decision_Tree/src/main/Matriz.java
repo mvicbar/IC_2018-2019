@@ -5,8 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * 	Clase que representa la tabla que contiene los atributos y los ejemplos de los cuales
+ * 	se deduce el árbol de decisión.
+ * 
+ * 	Los atributos se guardan en un array de Strings, mientras que los ejemplos se guardan en 
+ * 	un ArrayList, siendo cada ejemplo un array de Strings.
+ * @author victo
+ *
+ */
 public class Matriz {
 	private int F;
 	private int C;
