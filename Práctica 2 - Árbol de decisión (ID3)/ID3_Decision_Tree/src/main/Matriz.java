@@ -89,10 +89,8 @@ public class Matriz {
 				
 		} catch (FileNotFoundException e) {
 			System.out.println("No se han podido encontrar los ficheros indicados");
-			e.printStackTrace();
 		} catch (IOException e) {
 			System.out.println("Error en la lectura del fichero");
-			e.printStackTrace();
 		}
 		
 	}

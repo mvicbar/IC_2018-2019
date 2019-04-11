@@ -25,23 +25,26 @@ public class Main {
 		Nodo raiz = new Nodo();
 		algoritmoID3(raiz, tabla);
 		
-		ArrayList<ArrayList<String>> reglas = new ArrayList<ArrayList<String>>();
-		ArrayList<String> regla = new ArrayList<String>();
-		imprimirReglas(raiz, reglas, regla);
+		if(tabla.getC() != -1 && tabla.getF() != -1){
 		
-		System.out.println("");
-		System.out.println("Estas son las reglas deducidas del árbol de decisión: \n");
-		
-		for(ArrayList<String> r : reglas){
-			String re = "";
-			for(String s : r){
-				re = re + s;
-			}
+			ArrayList<ArrayList<String>> reglas = new ArrayList<ArrayList<String>>();
+			ArrayList<String> regla = new ArrayList<String>();
+			imprimirReglas(raiz, reglas, regla);
 			
-			System.out.println(re);
-		}
+			System.out.println("");
+			System.out.println("Estas son las reglas deducidas del árbol de decisión: \n");
+			
+			for(ArrayList<String> r : reglas){
+				String re = "";
+				for(String s : r){
+					re = re + s;
+				}
 				
-		scanner.close();
+				System.out.println(re);
+			}
+					
+			scanner.close();
+		}
 	}
 
 	/**
@@ -212,7 +215,7 @@ public class Main {
 		regla.add(raiz.getAtributo().toUpperCase());
 		
 		for(String valor : raiz.getRamas().keySet()){
-			regla.add(" -> ");
+			regla.add(" - ");
 			regla.add(valor + " -> ");
 			Nodo hijo = raiz.getRamas().get(valor);
 			imprimirReglas(hijo, reglas, regla);
