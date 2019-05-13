@@ -36,4 +36,21 @@ public class Muestra {
 		return this.s4;
 	}
 
+	public void setCoordenada1(double s1) {
+		this.s1 = s1;
+	}
+
+	public void setCoordenada2(double s2) {
+		this.s2 = s2;
+	}
+
+	public void setCoordenada3(double s3) {
+		this.s3 = s3;
+	}
+
+	public void setCoordenada4(double s4) {
+		this.s4 = s4;
+	}
+
+	
 }
