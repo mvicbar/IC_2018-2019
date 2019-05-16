@@ -13,15 +13,151 @@ public class Main {
 	private static double razonAprendizaje = 0.1;
 	private static int kmax = 10;
 	private static HashMap<String, ArrayList<Muestra>> clases;
-	private static Muestra centroVersicolor, centroSetosa;
+	
+	private static ArrayList<Double> distanciasSetosa = new ArrayList<Double>();	// Posiciones 0 - 49, clase setosa. Posiciones 50 - 99, clase versicolor.
+	private static ArrayList<Double> distanciasVersicolor = new ArrayList<Double>();
+	
+	private static ArrayList<Double> gradosPertenenciaSetosa = new ArrayList<Double>();
+	private static ArrayList<Double> gradosPertenenciaVersicolor = new ArrayList<Double>();
+	
+	private static Muestra centroVersicolor, centroSetosa, centroSetosaAnterior, centroVersicolorAnterior;
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {	
+		centroSetosa = new Muestra(4.6, 3.0, 4.0, 0.0);
+		centroVersicolor = new Muestra(6.8, 3.4, 4.6, 0.7);
+		centroSetosaAnterior = new Muestra(0.0, 0.0, 0.0, 0.0);
+		centroVersicolorAnterior = new Muestra(0.0, 0.0, 0.0, 0.0);
 		inicializarClases();
-		entrenamientoLloyd();
-		clasificacionLloyd();
+		
+		if(!criterioFinalizacion()){
+			calculoDistanciasACentros();
+			calculoGradosPertenencia();
+			calculoNuevosCentros();
+		}
+		
+		clasificacionKMedias();
+//		entrenamientoLloyd();
+//		clasificacionLloyd();
 	}
 	
 	
+	private static void clasificacionKMedias() {
+		Scanner scanner = new Scanner(System.in);
+		String muestra;
+		
+		System.out.println("Indique el nombre del archivo que contiene la muesta a clasificar (.txt): ");
+		muestra = scanner.nextLine();
+		
+		try {
+			BufferedReader bfMuestra = new BufferedReader(new FileReader(muestra));
+			
+			String line;
+			
+			line = bfMuestra.readLine();
+			String[] l = line.split(",");
+			
+			Muestra m = new Muestra(Double.parseDouble(l[0]), Double.parseDouble(l[1]), Double.parseDouble(l[2]), Double.parseDouble(l[3]));
+			
+			double distSetosa = distancia(m, centroSetosa);
+			double distVersicolor = distancia(m, centroVersicolor);
+			
+			if(distSetosa < distVersicolor)
+				System.out.println("La muestra pertenece a la clase Iris-setosa");
+			else
+				System.out.println("La muestra pertenece a la clase Iris-versicolor");
+			
+			bfMuestra.close();
+			scanner.close();
+				
+		} catch (FileNotFoundException e) {
+			System.out.println("No se han podido encontrar los ficheros indicados");
+		} catch (IOException e) {
+			System.out.println("Error en la lectura del fichero");
+		}
+	}
+
+
+	private static boolean criterioFinalizacion() {
+		double cambioSetosa = Math.sqrt(distancia(centroSetosaAnterior, centroSetosa));
+		double cambioVersicolor = Math.sqrt(distancia(centroVersicolorAnterior, centroVersicolor));
+		
+		return cambioSetosa <= razonAprendizaje && cambioVersicolor <= razonAprendizaje;
+	}
+
+
+	private static void calculoNuevosCentros() {
+		double b = 0.0;
+		double c1 = 0.0, c2 = 0.0, c3 = 0.0, c4 = 0.0;
+		
+		centroSetosaAnterior = new Muestra(centroSetosa.getCoordenada1(), centroSetosa.getCoordenada2(), centroSetosa.getCoordenada3(), centroSetosa.getCoordenada4());
+		centroVersicolorAnterior = new Muestra(centroVersicolor.getCoordenada1(), centroVersicolor.getCoordenada2(), centroVersicolor.getCoordenada3(), centroVersicolor.getCoordenada4());
+		
+		for(int i = 0; i < clases.get("Iris-setosa").size(); i++){
+			Muestra m = clases.get("Iris-setosa").get(i);
+			
+			double cuadrado = Math.pow(gradosPertenenciaSetosa.get(i), 2);
+			b += cuadrado;
+			c1 += m.getCoordenada1() * cuadrado;
+			c2 += m.getCoordenada2() * cuadrado;
+			c3 += m.getCoordenada3() * cuadrado;
+			c4 += m.getCoordenada4() * cuadrado;
+		}
+		
+		centroSetosa.setCoordenada1(c1/b);
+		centroSetosa.setCoordenada2(c2/b);
+		centroSetosa.setCoordenada3(c3/b);
+		centroSetosa.setCoordenada4(c4/b);
+		
+		c1 = c2 = c3 = c4 = b = 0.0;
+		
+		for(int j = 0; j < clases.get("Iris-versicolor").size(); j++){
+			Muestra m = clases.get("Iris-versicolor").get(j);
+			
+			double cuadrado = Math.pow(gradosPertenenciaVersicolor.get(j), 2);
+			b += cuadrado;
+			c1 += m.getCoordenada1() * cuadrado;
+			c2 += m.getCoordenada2() * cuadrado;
+			c3 += m.getCoordenada3() * cuadrado;
+			c4 += m.getCoordenada4() * cuadrado;
+		}
+		
+		centroSetosa.setCoordenada1(c1/b);
+		centroSetosa.setCoordenada2(c2/b);
+		centroSetosa.setCoordenada3(c3/b);
+		centroSetosa.setCoordenada4(c4/b);
+		
+	}
+
+
+	private static void calculoGradosPertenencia() {
+		
+		for(int i = 0; i < clases.get("Iris-setosa").size(); ++i){
+			Muestra m = clases.get("Iris-setosa").get(i);
+			gradosPertenenciaSetosa.add(((1/distanciasSetosa.get(i))/((1/distanciasSetosa.get(i)) + (1/distanciasVersicolor.get(i)))));
+		}
+
+		for(int j = 0; j < clases.get("Iris-versicolor").size(); ++j){
+			Muestra m = clases.get("Iris-versicolor").get(j);
+			gradosPertenenciaVersicolor.add(((1/distanciasVersicolor.get(j + 50))/((1/distanciasSetosa.get(j + 50)) + (1/distanciasVersicolor.get(j + 50)))));
+		}
+		
+	}
+
+
+	private static void calculoDistanciasACentros() {
+		
+		for(Muestra m : clases.get("Iris-setosa")){
+			distanciasSetosa.add(distancia(centroSetosa, m));
+			distanciasVersicolor.add(distancia(centroVersicolor, m));
+		}
+		
+		for(Muestra m : clases.get("Iris-versicolor")){
+			distanciasSetosa.add(distancia(centroSetosa, m));
+			distanciasVersicolor.add(distancia(centroVersicolor, m));
+		}
+	}
+
+
 	/**
 	 * 	Lee el fichero introducido por el usuario y clasifica las muestras en las clases
 	 * 	indicadas.
@@ -52,7 +188,7 @@ public class Main {
 				clases.get(valores[valores.length - 1]).add(m);
 			}
 			
-			inicializarCentros();
+			//inicializarCentros();
 			
 			bfMuestras.close();
 			//scanner.close();
