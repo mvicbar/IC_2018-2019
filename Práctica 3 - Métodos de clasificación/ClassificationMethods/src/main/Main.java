@@ -43,11 +43,18 @@ public class Main {
                     		KMedias.calculoNuevosCentros(clases);
         				}
         				
-                    	KMedias.clasificacionKMedias();
+                    	int n1 = -1;
+                    	
+                    	while(n1 != 0)
+                    		n1 = KMedias.clasificacionKMedias();
+                    	
                         break;
                     case 2:
         				Lloyd.entrenamientoLloyd(clases);
-        				Lloyd.clasificacionLloyd();
+        				
+        				int n2 = -1;
+        				while(n2 != 0)
+        					n2 = Lloyd.clasificacionLloyd();
                         break;
                 }
             } catch (InputMismatchException e) {

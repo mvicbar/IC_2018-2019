@@ -24,39 +24,44 @@ public class KMedias {
 	private static HashMap<String, ArrayList<Double>> distanciasSetosa = new HashMap<String, ArrayList<Double>>();
 	private static HashMap<String, ArrayList<Double>> distanciasVersicolor = new HashMap<String, ArrayList<Double>>();
 
-	public static void clasificacionKMedias() {
+	public static int clasificacionKMedias() {
 		Scanner scanner = new Scanner(System.in);
 		String muestra;
 		
 		System.out.println("Indique el nombre del archivo que contiene la muesta a clasificar (.txt): ");
 		muestra = scanner.nextLine();
 		
-		try {
-			BufferedReader bfMuestra = new BufferedReader(new FileReader(muestra));
-			
-			String line;
-			
-			line = bfMuestra.readLine();
-			String[] l = line.split(",");
-			
-			Muestra m = new Muestra(Double.parseDouble(l[0]), Double.parseDouble(l[1]), Double.parseDouble(l[2]), Double.parseDouble(l[3]));
-			
-			double distSetosa = Main.distancia(m, centroSetosa);
-			double distVersicolor = Main.distancia(m, centroVersicolor);
-			
-			if(distSetosa < distVersicolor)
-				System.out.println("\nLa muestra pertenece a la clase IRIS-SETOSA\n");
-			else
-				System.out.println("\nLa muestra pertenece a la clase IRIS-VERSICOLOR\n");
-			
-			bfMuestra.close();
-			//scanner.close();
+		if(!muestra.equals("0")){
+			try {
+				BufferedReader bfMuestra = new BufferedReader(new FileReader(muestra));
 				
-		} catch (FileNotFoundException e) {
-			System.out.println("No se han podido encontrar los ficheros indicados");
-		} catch (IOException e) {
-			System.out.println("Error en la lectura del fichero");
-		}
+				String line;
+				
+				line = bfMuestra.readLine();
+				String[] l = line.split(",");
+				
+				Muestra m = new Muestra(Double.parseDouble(l[0]), Double.parseDouble(l[1]), Double.parseDouble(l[2]), Double.parseDouble(l[3]));
+				
+				double distSetosa = Main.distancia(m, centroSetosa);
+				double distVersicolor = Main.distancia(m, centroVersicolor);
+				
+				if(distSetosa < distVersicolor)
+					System.out.println("\nLa muestra pertenece a la clase IRIS-SETOSA\n");
+				else
+					System.out.println("\nLa muestra pertenece a la clase IRIS-VERSICOLOR\n");
+				
+				bfMuestra.close();
+				//scanner.close();
+					
+			} catch (FileNotFoundException e) {
+				System.out.println("No se han podido encontrar los ficheros indicados");
+			} catch (IOException e) {
+				System.out.println("Error en la lectura del fichero");
+			}
+			
+			return 1;
+		}else
+			return 0;
 	}
 	
 	
