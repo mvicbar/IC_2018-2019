@@ -47,9 +47,11 @@ public class KMedias {
 				double distVersicolor = Main.distancia(m, centroVersicolor);
 				
 				if(distSetosa < distVersicolor)
-					System.out.println("\nLa muestra pertenece a la clase IRIS-SETOSA");
+					System.out.println("\nLa muestra (" + m.getCoordenada1() + ", " + m.getCoordenada2() + ", " + m.getCoordenada3() + 
+							", " + m.getCoordenada4() + ") pertenece a la clase IRIS-SETOSA");
 				else
-					System.out.println("\nLa muestra pertenece a la clase IRIS-VERSICOLOR");
+					System.out.println("\nLa muestra (" + m.getCoordenada1() + ", " + m.getCoordenada2() + ", " + m.getCoordenada3() + 
+							", " + m.getCoordenada4() + ") pertenece a la clase IRIS-VERSICOLOR");
 				
 				bfMuestra.close();
 
