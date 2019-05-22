@@ -86,7 +86,8 @@ public class Lloyd {
 		Scanner scanner = new Scanner(System.in);
 		String muestra;
 		
-		System.out.println("Indique el nombre del archivo que contiene la muesta a clasificar (.txt): ");
+		System.out.println("\nIndique el nombre del archivo que contiene la muesta a clasificar (.txt): ");
+		System.out.println("Si no desea introducir más muestras, introduzca 0.");
 		muestra = scanner.nextLine();
 		
 		if(!muestra.equals("0")){
@@ -104,16 +105,19 @@ public class Lloyd {
 				double distVersicolor = Main.distancia(m, centroVersicolor);
 				
 				if(distSetosa < distVersicolor)
-					System.out.println("La muestra pertenece a la clase Iris-setosa");
+					System.out.println("\nLa muestra pertenece a la clase IRIS-SETOSA");
 				else
-					System.out.println("La muestra pertenece a la clase Iris-versicolor");
+					System.out.println("\nLa muestra pertenece a la clase IRIS-VERSICOLOR");
 				
 				bfMuestra.close();
 					
 			} catch (FileNotFoundException e) {
-				System.out.println("No se han podido encontrar los ficheros indicados");
+				System.out.println("No se ha podido encontrar el fichero indicado.");
+				System.out.println("Por favor, guarde el fichero en el mismo directorio que el archivo ejecutable"
+						+ "e inténtelo de nuevo.");
 			} catch (IOException e) {
 				System.out.println("Error en la lectura del fichero");
+				System.exit(0);
 			}
 		
 			return 1;

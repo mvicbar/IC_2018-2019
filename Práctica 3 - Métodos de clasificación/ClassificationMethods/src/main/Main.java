@@ -13,18 +13,18 @@ public class Main {
 
 	private static HashMap<String, ArrayList<Muestra>> clases;
 
-	public static void main(String[] args) {	
+	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		
 		System.out.println("MÉTODOS DE CLASIFICACIÓN");
 		System.out.println("Cargando las clases del fichero 'Iris2Clases.txt'...");
 		inicializarClases();
-		System.out.println("Carga terminada.\n");
+		System.out.println("Carga terminada.");
 		int opcion = -1;
 		
 		while (opcion != 0) {
 			 
-			System.out.println("Por favor, elija un método de clasificación:");
+			System.out.println("\nPor favor, elija un método de clasificación:");
 			System.out.println("\t1. Agrupamiento borroso (k-medias)");
 			System.out.println("\t2. Algoritmo de Lloyd");
 			System.out.println("\t0. Salir\n");
@@ -63,6 +63,8 @@ public class Main {
             }
         }
 		
+		System.exit(0);
+		
 	}
 	
 	
@@ -94,7 +96,10 @@ public class Main {
 			bfMuestras.close();		
 			
 		} catch (FileNotFoundException e) {
-			System.out.println("No se han podido encontrar los ficheros indicados");
+			System.out.println("No se ha podido encontrar el fichero 'Iris2Clases.txt'");
+			System.out.println("Por favor, guarde el fichero 'Iris2Clases.txt' en el mismo directorio que el "
+					+ "archivo ejecutable y vuelva a ejecutarlo.");
+			System.exit(0);
 		} catch (IOException e) {
 			System.out.println("Error en la lectura del fichero");
 		}
